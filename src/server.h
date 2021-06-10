@@ -993,17 +993,22 @@ struct sharedObjectsStruct {
     sds minstring, maxstring;
 };
 
+// 跳表节点
 /* ZSETs use a specialized version of Skiplists */
 typedef struct zskiplistNode {
-    sds ele;
+    sds ele;                            // 节点元素内容，sds
     double score;
-    struct zskiplistNode *backward;
+    struct zskiplistNode *backward;     // 前驱节点
     struct zskiplistLevel {
-        struct zskiplistNode *forward;
+        struct zskiplistNode *forward;  // 后继节点（相邻节点）或者说将next移至到level中
         unsigned long span;
     } level[];
 } zskiplistNode;
 
+// 跳表 zskiplist
+// 链表节点（头节点、尾节点）
+// 长度length
+// 高度level
 typedef struct zskiplist {
     struct zskiplistNode *header, *tail;
     unsigned long length;
@@ -2155,6 +2160,7 @@ typedef struct {
     int minex, maxex; /* are min or max exclusive? */
 } zlexrangespec;
 
+// 跳表API
 zskiplist *zslCreate(void);
 void zslFree(zskiplist *zsl);
 zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele);
@@ -2162,6 +2168,7 @@ unsigned char *zzlInsert(unsigned char *zl, sds ele, double score);
 int zslDelete(zskiplist *zsl, double score, sds ele, zskiplistNode **node);
 zskiplistNode *zslFirstInRange(zskiplist *zsl, zrangespec *range);
 zskiplistNode *zslLastInRange(zskiplist *zsl, zrangespec *range);
+
 double zzlGetScore(unsigned char *sptr);
 void zzlNext(unsigned char *zl, unsigned char **eptr, unsigned char **sptr);
 void zzlPrev(unsigned char *zl, unsigned char **eptr, unsigned char **sptr);

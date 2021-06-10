@@ -32,12 +32,14 @@
 #define __INTSET_H
 #include <stdint.h>
 
+// 整数集合 intset
 typedef struct intset {
-    uint32_t encoding;
-    uint32_t length;
-    int8_t contents[];
+    uint32_t encoding;          // 编码方式，值：16、32、64（int16、int32、int64）
+    uint32_t length;            // 集合中元素个数
+    int8_t contents[];          // 元素数组
 } intset;
 
+// 整数集合API
 intset *intsetNew(void);
 intset *intsetAdd(intset *is, int64_t value, uint8_t *success);
 intset *intsetRemove(intset *is, int64_t value, int *success);

@@ -4,14 +4,29 @@
 			"path": "src/server.h",
 			"bookmarks": [
 				{
-					"line": 997,
-					"column": 0,
-					"label": ""
-				},
-				{
 					"line": 1011,
 					"column": 26,
-					"label": ""
+					"label": "跳表"
+				}
+			]
+		},
+		{
+			"path": "src/adlist.h",
+			"bookmarks": [
+				{
+					"line": 51,
+					"column": 21,
+					"label": "双向链表"
+				}
+			]
+		},
+		{
+			"path": "src/dict.h",
+			"bookmarks": [
+				{
+					"line": 79,
+					"column": 21,
+					"label": "哈希表"
 				}
 			]
 		}

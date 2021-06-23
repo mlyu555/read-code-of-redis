@@ -32,6 +32,11 @@
 #define __ZMALLOC_H
 
 /* Double expansion needed for stringification of macro values. */
+// 字符串化 stringification  用于宏值字符串化的双重宏展开
+// keynote 为什么要双重宏——方便宏展开即__xstr中的s可以是宏, 举例如下：
+// #define foo 4
+// __xstr(foo)   结果为“4”
+// __str(foo)    结果为“foo”
 #define __xstr(s) __str(s)
 #define __str(s) #s
 

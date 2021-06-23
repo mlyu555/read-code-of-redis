@@ -67,7 +67,7 @@ static int _dictInit(dict *ht, dictType *type, void *privDataPtr);
 
 /* -------------------------- hash functions -------------------------------- */
 
-static uint8_t dict_hash_function_seed[16];
+static uint8_t dict_hash_function_seed[16];             // 哈希函数种子数组
 
 void dictSetHashFunctionSeed(uint8_t *seed) {
     memcpy(dict_hash_function_seed,seed,sizeof(dict_hash_function_seed));
@@ -80,6 +80,7 @@ uint8_t *dictGetHashFunctionSeed(void) {
 /* The default hashing function uses SipHash implementation
  * in siphash.c. */
 
+// 默认hash函数 SipHash
 uint64_t siphash(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t siphash_nocase(const uint8_t *in, const size_t inlen, const uint8_t *k);
 
@@ -95,6 +96,7 @@ uint64_t dictGenCaseHashFunction(const unsigned char *buf, int len) {
 
 /* Reset a hash table already initialized with ht_init().
  * NOTE: This function should only be called by ht_destroy(). */
+// 重置hashtable
 static void _dictReset(dictht *ht)
 {
     ht->table = NULL;
@@ -104,6 +106,7 @@ static void _dictReset(dictht *ht)
 }
 
 /* Create a new hash table */
+// 创建hashtable
 dict *dictCreate(dictType *type,
         void *privDataPtr)
 {
@@ -121,7 +124,7 @@ int _dictInit(dict *d, dictType *type,
     _dictReset(&d->ht[1]);
     d->type = type;
     d->privdata = privDataPtr;
-    d->rehashidx = -1;
+    d->rehashidx = -1;              // no rehashing
     d->pauserehash = 0;
     return DICT_OK;
 }
@@ -132,6 +135,7 @@ int dictResize(dict *d)
 {
     unsigned long minimal;
 
+    // dict_can_resize 和 d->rehashidx 同时满足才能rehash
     if (!dict_can_resize || dictIsRehashing(d)) return DICT_ERR;
     minimal = d->ht[0].used;
     if (minimal < DICT_HT_INITIAL_SIZE)

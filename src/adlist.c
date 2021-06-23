@@ -56,6 +56,7 @@ list *listCreate(void)
 /* Remove all the elements from the list without destroying the list itself. */
 void listEmpty(list *list)
 {
+    // 仅清空链表而不销毁链表
     unsigned long len;
     listNode *current, *next;
 
@@ -63,6 +64,7 @@ void listEmpty(list *list)
     len = list->len;
     while(len--) {
         next = current->next;
+        // 若设置free，则使用自定义free，否则zfree
         if (list->free) list->free(current->value);
         zfree(current);
         current = next;
@@ -76,6 +78,7 @@ void listEmpty(list *list)
  * This function can't fail. */
 void listRelease(list *list)
 {
+    // 清空链表并释放链表本身
     listEmpty(list);
     zfree(list);
 }
@@ -88,6 +91,7 @@ void listRelease(list *list)
  * On success the 'list' pointer you pass to the function is returned. */
 list *listAddNodeHead(list *list, void *value)
 {
+    // 添加失败无改变，成功返回改变后的list
     listNode *node;
 
     if ((node = zmalloc(sizeof(*node))) == NULL)
@@ -114,6 +118,7 @@ list *listAddNodeHead(list *list, void *value)
  * On success the 'list' pointer you pass to the function is returned. */
 list *listAddNodeTail(list *list, void *value)
 {
+    // 类似listAddNodeHead
     listNode *node;
 
     if ((node = zmalloc(sizeof(*node))) == NULL)
@@ -132,12 +137,16 @@ list *listAddNodeTail(list *list, void *value)
     return list;
 }
 
-list *listInsertNode(list *list, listNode *old_node, void *value, int after) {
+// 在某节点前/后插入元素
+list *listInsertNode(list *list, listNode *old_node, void *value, int after) 
+{
+    // 类似listAddNodeHead, after标志bool
     listNode *node;
 
     if ((node = zmalloc(sizeof(*node))) == NULL)
         return NULL;
     node->value = value;
+    // todo 实现逻辑清晰，思考自己如何写出相应代码，尽量减少if-else嵌套和数量
     if (after) {
         node->prev = old_node;
         node->next = old_node->next;
@@ -167,6 +176,7 @@ list *listInsertNode(list *list, listNode *old_node, void *value, int after) {
  * This function can't fail. */
 void listDelNode(list *list, listNode *node)
 {
+    // todo 实现逻辑清晰，思考自己如何写出相应代码，尽量减少if-else嵌套和数量
     if (node->prev)
         node->prev->next = node->next;
     else
@@ -203,6 +213,7 @@ void listReleaseIterator(listIter *iter) {
 }
 
 /* Create an iterator in the list private iterator structure */
+// 倒带/重启
 void listRewind(list *list, listIter *li) {
     li->next = list->head;
     li->direction = AL_START_HEAD;
@@ -229,6 +240,7 @@ void listRewindTail(list *list, listIter *li) {
  * */
 listNode *listNext(listIter *iter)
 {
+    // next函数: 取数据并向后移动iter
     listNode *current = iter->next;
 
     if (current != NULL) {
@@ -250,6 +262,7 @@ listNode *listNext(listIter *iter)
  * The original list both on success or error is never modified. */
 list *listDup(list *orig)
 {
+    // deepcopy 内存和数据不重用
     list *copy;
     listIter iter;
     listNode *node;
@@ -263,14 +276,14 @@ list *listDup(list *orig)
     while((node = listNext(&iter)) != NULL) {
         void *value;
 
-        if (copy->dup) {
+        if (copy->dup) {                        // todo 拷贝时可能直接获取而遗忘；使用场景在哪里？
             value = copy->dup(node->value);
             if (value == NULL) {
                 listRelease(copy);
                 return NULL;
             }
         } else
-            value = node->value;
+            value = node->value;               // 拷贝的是指针，实际数据仍旧只有一份
         if (listAddNodeTail(copy, value) == NULL) {
             listRelease(copy);
             return NULL;
@@ -314,6 +327,7 @@ listNode *listSearchKey(list *list, void *key)
  * from the tail, -1 is the last element, -2 the penultimate
  * and so on. If the index is out of range NULL is returned. */
 listNode *listIndex(list *list, long index) {
+    // 索引查找，支持反向索引，超出链表范围返回NULL
     listNode *n;
 
     if (index < 0) {
@@ -329,6 +343,7 @@ listNode *listIndex(list *list, long index) {
 
 /* Rotate the list removing the tail node and inserting it to the head. */
 void listRotateTailToHead(list *list) {
+    // 移动尾到头节点
     if (listLength(list) <= 1) return;
 
     /* Detach current tail */
@@ -344,6 +359,7 @@ void listRotateTailToHead(list *list) {
 
 /* Rotate the list removing the head node and inserting it to the tail. */
 void listRotateHeadToTail(list *list) {
+    // 移动头到尾节点
     if (listLength(list) <= 1) return;
 
     listNode *head = list->head;
@@ -360,10 +376,12 @@ void listRotateHeadToTail(list *list) {
 /* Add all the elements of the list 'o' at the end of the
  * list 'l'. The list 'other' remains empty but otherwise valid. */
 void listJoin(list *l, list *o) {
+    // 合并链表
     if (o->len == 0) return;
 
     o->head->prev = l->tail;
 
+    // todo 实现逻辑清晰，思考自己如何写出相应代码，尽量减少if-else嵌套和数量
     if (l->tail)
         l->tail->next = o->head;
     else

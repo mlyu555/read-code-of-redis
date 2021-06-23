@@ -33,27 +33,33 @@
 
 /* Node, List, and Iterator are the only data structures used currently. */
 
+// 双链表节点
 typedef struct listNode {
     struct listNode *prev;
     struct listNode *next;
-    void *value;
+    void *value;                            // 数据 void*
 } listNode;
 
-typedef struct listIter {
+// 链表迭代器
+// for 遍历
+typedef struct listIter {                   // 拓展 迭代器实现原理
     listNode *next;
-    int direction;
+    int direction;                          // 向前向后 AL_START_HEAD || AL_START_TAIL
 } listIter;
 
-typedef struct list {
+// 双链表
+// todo 画图示意
+typedef struct list {                       // 数据与结构分离, 即链表头结点非首元节点（数据节点）
     listNode *head;
     listNode *tail;
-    void *(*dup)(void *ptr);
-    void (*free)(void *ptr);
-    int (*match)(void *ptr, void *key);
-    unsigned long len;
+    void *(*dup)(void *ptr);                // callback 复制
+    void (*free)(void *ptr);                // callback 释放
+    int (*match)(void *ptr, void *key);     // callback 匹配
+    unsigned long len;                      // 链表长度
 } list;
 
-/* Functions implemented as macros */
+/* Functions implemented as macros */       // defect 无法检查类型
+// 获取结构体成员
 #define listLength(l) ((l)->len)
 #define listFirst(l) ((l)->head)
 #define listLast(l) ((l)->tail)
@@ -61,6 +67,7 @@ typedef struct list {
 #define listNextNode(n) ((n)->next)
 #define listNodeValue(n) ((n)->value)
 
+// callback set/get
 #define listSetDupMethod(l,m) ((l)->dup = (m))
 #define listSetFreeMethod(l,m) ((l)->free = (m))
 #define listSetMatchMethod(l,m) ((l)->match = (m))
@@ -70,6 +77,7 @@ typedef struct list {
 #define listGetMatchMethod(l) ((l)->match)
 
 /* Prototypes */
+
 list *listCreate(void);
 void listRelease(list *list);
 void listEmpty(list *list);

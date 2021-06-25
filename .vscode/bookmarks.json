@@ -4,9 +4,19 @@
 			"path": "src/server.h",
 			"bookmarks": [
 				{
-					"line": 1011,
+					"line": 677,
+					"column": 28,
+					"label": "redisObject(robj)"
+				},
+				{
+					"line": 1018,
 					"column": 26,
 					"label": "跳表"
+				},
+				{
+					"line": 1658,
+					"column": 21,
+					"label": ""
 				}
 			]
 		},
@@ -27,6 +37,26 @@
 					"line": 79,
 					"column": 21,
 					"label": "哈希表"
+				}
+			]
+		},
+		{
+			"path": "src/server.c",
+			"bookmarks": [
+				{
+					"line": 3142,
+					"column": 23,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "src/redis-cli.c",
+			"bookmarks": [
+				{
+					"line": 8197,
+					"column": 33,
+					"label": ""
 				}
 			]
 		}

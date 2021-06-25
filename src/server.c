@@ -2037,6 +2037,7 @@ void cronUpdateMemoryStats() {
  * a macro is used: run_with_period(milliseconds) { .... }
  */
 
+// 服务器定时任务 无限循环 默认100ms
 int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
     int j;
     UNUSED(eventLoop);
@@ -2088,6 +2089,7 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
      *
      * Note that you can change the resolution altering the
      * LRU_CLOCK_RESOLUTION define. */
+    // 更新LRU
     unsigned int lruclock = getLRUClock();
     atomicSet(server.lruclock,lruclock);
 
@@ -2095,6 +2097,7 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
 
     /* We received a SIGTERM, shutting down here in a safe way, as it is
      * not ok doing so inside the signal handler. */
+    // 处理SIGTERM信号 shutdown_asap
     if (server.shutdown_asap) {
         if (prepareForShutdown(SHUTDOWN_NOFLAGS) == C_OK) exit(0);
         serverLog(LL_WARNING,"SIGTERM received but errors trying to shut down the server, check the logs for more information");
@@ -2129,6 +2132,7 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
     }
 
     /* We need to do a few operations on clients asynchronously. */
+    // 管理客户端资源
     clientsCron();
 
     /* Handle background operations on Redis databases. */
@@ -2629,6 +2633,8 @@ void createSharedObjects(void) {
     shared.maxstring = sdsnew("maxstring");
 }
 
+
+// 初始化服务器, 即初始化server变量
 void initServerConfig(void) {
     int j;
 
@@ -6144,12 +6150,13 @@ redisTestProc *getTestProcByName(const char *name) {
 }
 #endif
 
+// 程序入口 main
 int main(int argc, char **argv) {
     struct timeval tv;
     int j;
     char config_from_stdin = 0;
 
-#ifdef REDIS_TEST
+#ifdef REDIS_TEST           // test
     if (argc >= 3 && !strcasecmp(argv[1], "test")) {
         int accurate = 0;
         for (j = 3; j < argc; j++) {
@@ -6212,7 +6219,7 @@ int main(int argc, char **argv) {
     getRandomBytes(hashseed,sizeof(hashseed));
     dictSetHashFunctionSeed(hashseed);
     server.sentinel_mode = checkForSentinelMode(argc,argv);
-    initServerConfig();
+    initServerConfig();                 // step
     ACLInit(); /* The ACL subsystem must be initialized ASAP because the
                   basic networking code and client creation depends on it. */
     moduleInitModulesSystem();
@@ -6271,6 +6278,7 @@ int main(int argc, char **argv) {
             server.exec_argv[1] = zstrdup(server.configfile);
             j = 2; // Skip this arg when parsing options
         }
+        // 解析命令行参数
         while(j < argc) {
             /* Either first or last argument - Should we read config from stdin? */
             if (argv[j][0] == '-' && argv[j][1] == '\0' && (j == 1 || j == argc-1)) {
@@ -6293,7 +6301,7 @@ int main(int argc, char **argv) {
             j++;
         }
 
-        loadServerConfig(server.configfile, config_from_stdin, options);
+        loadServerConfig(server.configfile, config_from_stdin, options);        // step
         if (server.sentinel_mode) loadSentinelConfigFromQueue();
         sdsfree(options);
     }
@@ -6318,7 +6326,7 @@ int main(int argc, char **argv) {
     }
 
     readOOMScoreAdj();
-    initServer();
+    initServer();               // step
     if (background || server.pidfile) createPidFile();
     if (server.set_proc_title) redisSetProcTitle(NULL);
     redisAsciiArt();
@@ -6389,7 +6397,7 @@ int main(int argc, char **argv) {
     redisSetCpuAffinity(server.server_cpulist);
     setOOMScoreAdj(-1);
 
-    aeMain(server.el);
+    aeMain(server.el);              // step 事件模块（文件\定时）
     aeDeleteEventLoop(server.el);
     return 0;
 }

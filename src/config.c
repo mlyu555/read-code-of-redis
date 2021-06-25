@@ -2395,6 +2395,7 @@ static int updateTLSPort(long long val, long long prev, const char **err) {
 
 #endif  /* USE_OPENSSL */
 
+// 配置数组configs
 standardConfig configs[] = {
     /* Bool configs */
     createBoolConfig("rdbchecksum", NULL, IMMUTABLE_CONFIG, server.rdb_checksum, 1, NULL, NULL),

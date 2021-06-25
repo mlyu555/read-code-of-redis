@@ -1103,6 +1103,7 @@ static void acceptCommonHandler(connection *conn, int flags, char *ip) {
     }
 }
 
+// aeFileProc: 连接应答处理器 —— 文件事件
 void acceptTcpHandler(aeEventLoop *el, int fd, void *privdata, int mask) {
     int cport, cfd, max = MAX_ACCEPTS_PER_CALL;
     char cip[NET_IP_STR_LEN];
@@ -1583,6 +1584,7 @@ int writeToClient(client *c, int handler_installed) {
 }
 
 /* Write event handler. Just send data to the client. */
+// 命令回复处理器 —— 文件事件
 void sendReplyToClient(connection *conn) {
     client *c = connGetPrivateData(conn);
     writeToClient(c,1);
@@ -2124,6 +2126,7 @@ void processInputBuffer(client *c) {
     }
 }
 
+// 命令请求处理器 —— 文件事件
 void readQueryFromClient(connection *conn) {
     client *c = connGetPrivateData(conn);
     int nread, readlen;

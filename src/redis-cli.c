@@ -8194,6 +8194,7 @@ static sds askPassword(const char *msg) {
  * Program main()
  *--------------------------------------------------------------------------- */
 
+// Redis客户端程序入口 main
 int main(int argc, char **argv) {
     int firstarg;
     struct timeval tv;

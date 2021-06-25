@@ -85,7 +85,7 @@
     (__STDC_VERSION__ >= 201112L) && !defined(__STDC_NO_ATOMICS__)
 /* Use '_Atomic' keyword if the compiler supports. */
 #undef  redisAtomic
-#define redisAtomic _Atomic
+#define redisAtomic _Atomic                 // 告知编译器原子操作
 /* Implementation using _Atomic in C11. */
 
 #include <stdatomic.h>

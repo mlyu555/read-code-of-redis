@@ -48,13 +48,15 @@
 
 /* Include the best multiplexing layer supported by this system.
  * The following should be ordered by performances, descending. */
+// IO复用自动选择
+// 1.evport 2.epoll 3.kqueue 4.select
 #ifdef HAVE_EVPORT
 #include "ae_evport.c"
 #else
-    #ifdef HAVE_EPOLL
+    #ifdef HAVE_EPOLL                   // Linux2.6+
     #include "ae_epoll.c"
     #else
-        #ifdef HAVE_KQUEUE
+        #ifdef HAVE_KQUEUE              // Mac
         #include "ae_kqueue.c"
         #else
         #include "ae_select.c"
@@ -154,6 +156,7 @@ void aeStop(aeEventLoop *eventLoop) {
     eventLoop->stop = 1;
 }
 
+// 创建文件事件（注册到IO复用程序）
 int aeCreateFileEvent(aeEventLoop *eventLoop, int fd, int mask,
         aeFileProc *proc, void *clientData)
 {
@@ -163,6 +166,7 @@ int aeCreateFileEvent(aeEventLoop *eventLoop, int fd, int mask,
     }
     aeFileEvent *fe = &eventLoop->events[fd];
 
+    // 不同IO复用的具体添加方式
     if (aeApiAddEvent(eventLoop, fd, mask) == -1)
         return AE_ERR;
     fe->mask |= mask;
@@ -345,6 +349,7 @@ static int processTimeEvents(aeEventLoop *eventLoop) {
  * if flags has AE_CALL_BEFORE_SLEEP set, the beforesleep callback is called.
  *
  * The function returns the number of events processed. */
+// 文件事件分发器
 int aeProcessEvents(aeEventLoop *eventLoop, int flags)
 {
     int processed = 0, numevents;
@@ -392,6 +397,7 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
 
         /* Call the multiplexing API, will return only on timeout or when
          * some event fires. */
+        // epoll_wait\select
         numevents = aeApiPoll(eventLoop, tvp);
 
         /* After sleep callback. */
@@ -481,6 +487,7 @@ int aeWait(int fd, int mask, long long milliseconds) {
     }
 }
 
+// 无限循环
 void aeMain(aeEventLoop *eventLoop) {
     eventLoop->stop = 0;
     while (!eventLoop->stop) {

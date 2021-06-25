@@ -63,12 +63,15 @@
 struct aeEventLoop;
 
 /* Types and data structures */
+// callback 事件处理句柄
 typedef void aeFileProc(struct aeEventLoop *eventLoop, int fd, void *clientData, int mask);
 typedef int aeTimeProc(struct aeEventLoop *eventLoop, long long id, void *clientData);
 typedef void aeEventFinalizerProc(struct aeEventLoop *eventLoop, void *clientData);
 typedef void aeBeforeSleepProc(struct aeEventLoop *eventLoop);
 
+// 3种事件模型
 /* File event structure */
+// 文件事件
 typedef struct aeFileEvent {
     int mask; /* one of AE_(READABLE|WRITABLE|BARRIER) */
     aeFileProc *rfileProc;
@@ -77,9 +80,10 @@ typedef struct aeFileEvent {
 } aeFileEvent;
 
 /* Time event structure */
+// 定时事件
 typedef struct aeTimeEvent {
     long long id; /* time event identifier. */
-    monotime when;
+    monotime when;                          // 到期Unix时间戳
     aeTimeProc *timeProc;
     aeEventFinalizerProc *finalizerProc;
     void *clientData;
@@ -90,17 +94,19 @@ typedef struct aeTimeEvent {
 } aeTimeEvent;
 
 /* A fired event */
+// 解雇事件
 typedef struct aeFiredEvent {
     int fd;
     int mask;
 } aeFiredEvent;
 
 /* State of an event based program */
+// IO多路复用程序模板
 typedef struct aeEventLoop {
-    int maxfd;   /* highest file descriptor currently registered */
-    int setsize; /* max number of file descriptors tracked */
-    long long timeEventNextId;
-    aeFileEvent *events; /* Registered events */
+    int maxfd;   /* highest file descriptor currently registered */     // 当前监听fd的最大值
+    int setsize; /* max number of file descriptors tracked */           // 最大可追踪fd数量
+    long long timeEventNextId;                                          // 最近定时事件id
+    aeFileEvent *events; /* Registered events */                        // 保存监听文件事件
     aeFiredEvent *fired; /* Fired events */
     aeTimeEvent *timeEventHead;
     int stop;
@@ -122,7 +128,7 @@ long long aeCreateTimeEvent(aeEventLoop *eventLoop, long long milliseconds,
         aeTimeProc *proc, void *clientData,
         aeEventFinalizerProc *finalizerProc);
 int aeDeleteTimeEvent(aeEventLoop *eventLoop, long long id);
-int aeProcessEvents(aeEventLoop *eventLoop, int flags);
+int aeProcessEvents(aeEventLoop *eventLoop, int flags);             // 文件事件分发器
 int aeWait(int fd, int mask, long long milliseconds);
 void aeMain(aeEventLoop *eventLoop);
 char *aeGetApiName(void);

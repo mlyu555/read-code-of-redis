@@ -38,6 +38,7 @@
 
 /* ===================== Creation and parsing of objects ==================== */
 
+// 初始化robj: encoding默认为raw
 robj *createObject(int type, void *ptr) {
     robj *o = zmalloc(sizeof(*o));
     o->type = type;
@@ -115,8 +116,10 @@ robj *createEmbeddedStringObject(const char *ptr, size_t len) {
  *
  * The current limit of 44 is chosen so that the biggest string object
  * we allocate as EMBSTR will still fit into the 64 byte arena of jemalloc. */
-#define OBJ_ENCODING_EMBSTR_SIZE_LIMIT 44
+#define OBJ_ENCODING_EMBSTR_SIZE_LIMIT 44       // ??为什么是44——robj占20字节
 robj *createStringObject(const char *ptr, size_t len) {
+    // 长度不超过44时--EmbeddedStringObject
+    // 超过44时--RawStringObject
     if (len <= OBJ_ENCODING_EMBSTR_SIZE_LIMIT)
         return createEmbeddedStringObject(ptr,len);
     else
@@ -141,6 +144,7 @@ robj *createStringObjectFromLongLongWithOptions(long long value, int valueobj) {
         valueobj = 0;
     }
 
+    // value = [0, 10000) 且 valueobj = 0
     if (value >= 0 && value < OBJ_SHARED_INTEGERS && valueobj == 0) {
         incrRefCount(shared.integers[value]);
         o = shared.integers[value];

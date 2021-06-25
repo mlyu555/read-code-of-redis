@@ -504,6 +504,7 @@ typedef enum {
 /* A redis object, that is a type able to hold a string / list / set */
 
 /* The actual Redis Object */
+// Redis对象类型: redisObject->type
 #define OBJ_STRING 0    /* String object. */
 #define OBJ_LIST 1      /* List object. */
 #define OBJ_SET 2       /* Set object. */
@@ -651,11 +652,12 @@ typedef struct RedisModuleDigest {
 /* Objects encoding. Some kind of objects like Strings and Hashes can be
  * internally represented in multiple ways. The 'encoding' field of the object
  * is set to one of this fields for this object. */
+// Redis对象编码: redisObject->encoding 10种
 #define OBJ_ENCODING_RAW 0     /* Raw representation */
 #define OBJ_ENCODING_INT 1     /* Encoded as integer */
 #define OBJ_ENCODING_HT 2      /* Encoded as hash table */
 #define OBJ_ENCODING_ZIPMAP 3  /* Encoded as zipmap */
-#define OBJ_ENCODING_LINKEDLIST 4 /* No longer used: old list encoding. */
+#define OBJ_ENCODING_LINKEDLIST 4 /* No longer used: old list encoding. */  // discarded
 #define OBJ_ENCODING_ZIPLIST 5 /* Encoded as ziplist */
 #define OBJ_ENCODING_INTSET 6  /* Encoded as intset */
 #define OBJ_ENCODING_SKIPLIST 7  /* Encoded as skiplist */
@@ -670,14 +672,16 @@ typedef struct RedisModuleDigest {
 #define OBJ_SHARED_REFCOUNT INT_MAX     /* Global object never destroyed. */
 #define OBJ_STATIC_REFCOUNT (INT_MAX-1) /* Object allocated in the stack. */
 #define OBJ_FIRST_SPECIAL_REFCOUNT OBJ_STATIC_REFCOUNT
+// Redis对象定义
+// type\encoding是组合关系, 即每个type可对应多个encoding、且1个encoding也可实现多个type
 typedef struct redisObject {
-    unsigned type:4;
-    unsigned encoding:4;
+    unsigned type:4;                // 类型: 最多2^4种,暂7种:字符串string、有序集合zset、列表list、哈希hash、集合set    // cmd TYPE
+    unsigned encoding:4;            // 编码: 决定ptr底层实现的数据结构                                              // cmd OBJECT ENCODING
     unsigned lru:LRU_BITS; /* LRU time (relative to global lru_clock) or
                             * LFU data (least significant 8 bits frequency
                             * and most significant 16 bits access time). */
     int refcount;
-    void *ptr;
+    void *ptr;                      // 指向底层数据结构(sds\list\dict等)
 } robj;
 
 /* The a string name for an object's type as listed above
@@ -1970,19 +1974,19 @@ void freeListObject(robj *o);
 void freeSetObject(robj *o);
 void freeZsetObject(robj *o);
 void freeHashObject(robj *o);
-robj *createObject(int type, void *ptr);
-robj *createStringObject(const char *ptr, size_t len);
-robj *createRawStringObject(const char *ptr, size_t len);
-robj *createEmbeddedStringObject(const char *ptr, size_t len);
+robj *createObject(int type, void *ptr);                                // 创建robj核心
+robj *createStringObject(const char *ptr, size_t len);                  // 创建StringObject by SDS 下面2种
+robj *createRawStringObject(const char *ptr, size_t len);               // by SDS 分开连
+robj *createEmbeddedStringObject(const char *ptr, size_t len);          // by SDS 直连
 robj *dupStringObject(const robj *o);
 int isSdsRepresentableAsLongLong(sds s, long long *llval);
 int isObjectRepresentableAsLongLong(robj *o, long long *llongval);
 robj *tryObjectEncoding(robj *o);
 robj *getDecodedObject(robj *o);
 size_t stringObjectLen(robj *o);
-robj *createStringObjectFromLongLong(long long value);
+robj *createStringObjectFromLongLong(long long value);                  // 创建StringObject by long long
 robj *createStringObjectFromLongLongForValue(long long value);
-robj *createStringObjectFromLongDouble(long double value, int humanfriendly);
+robj *createStringObjectFromLongDouble(long double value, int humanfriendly);   // 创建StringObject by long double
 robj *createQuicklistObject(void);
 robj *createZiplistObject(void);
 robj *createSetObject(void);

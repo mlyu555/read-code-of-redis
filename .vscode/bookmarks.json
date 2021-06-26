@@ -6,17 +6,12 @@
 				{
 					"line": 677,
 					"column": 28,
-					"label": "redisObject(robj)"
+					"label": "redisObject"
 				},
 				{
 					"line": 1018,
 					"column": 26,
 					"label": "跳表"
-				},
-				{
-					"line": 1658,
-					"column": 21,
-					"label": ""
 				}
 			]
 		},
@@ -46,7 +41,12 @@
 				{
 					"line": 3142,
 					"column": 23,
-					"label": ""
+					"label": "initServer"
+				},
+				{
+					"line": 6153,
+					"column": 33,
+					"label": "main-server"
 				}
 			]
 		},
@@ -56,7 +56,7 @@
 				{
 					"line": 8197,
 					"column": 33,
-					"label": ""
+					"label": "main-client"
 				}
 			]
 		}

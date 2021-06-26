@@ -1000,16 +1000,17 @@ struct sharedObjectsStruct {
     sds minstring, maxstring;
 };
 
+// tips 跳跃表的核心思想: 用空间换时间，如：level[]、zskiplist.length\zskiplist.header等O(1)
 // 跳表节点
 /* ZSETs use a specialized version of Skiplists */
 typedef struct zskiplistNode {
     sds ele;                            // 节点元素内容，sds
-    double score;
-    struct zskiplistNode *backward;     // 前驱节点
+    double score;                       // 分值: 从小到大排序
+    struct zskiplistNode *backward;     // 后退指针(前驱节点)
     struct zskiplistLevel {
-        struct zskiplistNode *forward;  // 后继节点（相邻节点）或者说将next移至到level中
-        unsigned long span;
-    } level[];
+        struct zskiplistNode *forward;  // 前向指针（后继节点）或者说将next移至到level中
+        unsigned long span;             // 跨度, 即节点距离 ≥1
+    } level[];                          // 层数组: 数量越多访问越快                      // tips 柔性数组 
 } zskiplistNode;
 
 // 跳表 zskiplist
@@ -1017,11 +1018,13 @@ typedef struct zskiplistNode {
 // 长度length
 // 高度level
 typedef struct zskiplist {
-    struct zskiplistNode *header, *tail;
-    unsigned long length;
-    int level;
+    struct zskiplistNode *header, *tail;        // 头、尾节点   头节点相当于航标
+    unsigned long length;                       // 除头节点外的节点数
+    int level;                                  // 除头节点外的最大层数
 } zskiplist;
 
+
+// 有序集合
 typedef struct zset {
     dict *dict;
     zskiplist *zsl;

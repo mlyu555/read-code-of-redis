@@ -68,27 +68,29 @@ int zslLexValueLteMax(sds value, zlexrangespec *spec);
 
 /* Create a skiplist node with the specified number of levels.
  * The SDS string 'ele' is referenced by the node after the call. */
+// 创建跳表节点
+// todo test 其他成员变量默认初始化
 zskiplistNode *zslCreateNode(int level, double score, sds ele) {
-    zskiplistNode *zn =
-        zmalloc(sizeof(*zn)+level*sizeof(struct zskiplistLevel));
+    zskiplistNode *zn = 
+        zmalloc(sizeof(*zn)+level*sizeof(struct zskiplistLevel));   // tips zskiplistLevel柔性数组，动态占内存，若无元素则不占内存
     zn->score = score;
     zn->ele = ele;
     return zn;
 }
 
 /* Create a new skiplist. */
-// 创建新跳表
+// 创建跳表
 zskiplist *zslCreate(void) {
     int j;
     zskiplist *zsl;
 
     zsl = zmalloc(sizeof(*zsl));
-    zsl->level = 1;     // 从1层开始而不是0层开始
-    zsl->length = 0;
-    zsl->header = zslCreateNode(ZSKIPLIST_MAXLEVEL,0,NULL); // 头节点为NULL元素（各层链表头节点）
+    zsl->level = 1;                                             // 从1层开始而不是0层开始
+    zsl->length = 0;                                            // 不含头节点
+    zsl->header = zslCreateNode(ZSKIPLIST_MAXLEVEL,0,NULL);     // 头节点为NULL元素（各层链表头节点）
     for (j = 0; j < ZSKIPLIST_MAXLEVEL; j++) {
         zsl->header->level[j].forward = NULL;
-        zsl->header->level[j].span = 0;
+        zsl->header->level[j].span = 0;                         // 跨度为0，指向NULL
     }
     zsl->header->backward = NULL;
     zsl->tail = NULL;
@@ -98,12 +100,14 @@ zskiplist *zslCreate(void) {
 /* Free the specified skiplist node. The referenced SDS string representation
  * of the element is freed too, unless node->ele is set to NULL before calling
  * this function. */
+// 释放跳表节点
 void zslFreeNode(zskiplistNode *node) {
     sdsfree(node->ele);
     zfree(node);
 }
 
 /* Free a whole skiplist. */
+// 释放跳表及节点
 void zslFree(zskiplist *zsl) {
     zskiplistNode *node = zsl->header->level[0].forward, *next;
 
@@ -120,9 +124,10 @@ void zslFree(zskiplist *zsl) {
  * The return value of this function is between 1 and ZSKIPLIST_MAXLEVEL
  * (both inclusive), with a powerlaw-alike distribution where higher
  * levels are less likely to be returned. */
+// 获取随机层数
 int zslRandomLevel(void) {
     int level = 1;
-    while ((random()&0xFFFF) < (ZSKIPLIST_P * 0xFFFF))
+    while ((random()&0xFFFF) < (ZSKIPLIST_P * 0xFFFF))                  // tips 位运算
         level += 1;
     return (level<ZSKIPLIST_MAXLEVEL) ? level : ZSKIPLIST_MAXLEVEL;
 }
@@ -130,6 +135,7 @@ int zslRandomLevel(void) {
 /* Insert a new node in the skiplist. Assumes the element does not already
  * exist (up to the caller to enforce that). The skiplist takes ownership
  * of the passed SDS string 'ele'. */
+// 添加元素
 zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele) {
     zskiplistNode *update[ZSKIPLIST_MAXLEVEL], *x;
     unsigned int rank[ZSKIPLIST_MAXLEVEL];

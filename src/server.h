@@ -377,8 +377,8 @@ typedef enum {
 /* Anti-warning macro... */         // 防止编译器警告
 #define UNUSED(V) ((void) V)        // 去掉编译器对未使用变量警告
 
-#define ZSKIPLIST_MAXLEVEL 32 /* Should be enough for 2^64 elements */
-#define ZSKIPLIST_P 0.25      /* Skiplist P = 1/4 */
+#define ZSKIPLIST_MAXLEVEL 32 /* Should be enough for 2^64 elements */      // ?为什么是2^64不是2^32?
+#define ZSKIPLIST_P 0.25      /* Skiplist P = 1/4 */                        // 大量数据证明1/4更合理
 
 /* Append only defines */
 #define AOF_FSYNC_NO 0
@@ -2173,7 +2173,7 @@ typedef struct {
     int minex, maxex; /* are min or max exclusive? */
 } zlexrangespec;
 
-// 跳表API
+// api 跳表API
 zskiplist *zslCreate(void);
 void zslFree(zskiplist *zsl);
 zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele);

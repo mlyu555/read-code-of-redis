@@ -241,9 +241,11 @@
 /* The size of a ziplist header: two 32 bit integers for the total
  * bytes count and last item offset. One 16 bit integer for the number
  * of items field. */
+// zlbytes + zltail + zllen = 32 + 32 + 16 头
 #define ZIPLIST_HEADER_SIZE     (sizeof(uint32_t)*2+sizeof(uint16_t))
 
 /* Size of the "end of ziplist" entry. Just one byte. */
+// zlend 1byte 标识结束符
 #define ZIPLIST_END_SIZE        (sizeof(uint8_t))
 
 /* Return the pointer to the first entry of a ziplist. */
@@ -270,6 +272,7 @@
 /* We use this function to receive information about a ziplist entry.
  * Note that this is not how the data is actually encoded, is just what we
  * get filled by a function in order to operate more easily. */
+// ziplist节点
 typedef struct zlentry {
     unsigned int prevrawlensize; /* Bytes used to encode the previous entry len*/
     unsigned int prevrawlen;     /* Previous entry len. */
@@ -699,7 +702,7 @@ static inline void zipAssertValidEntry(unsigned char* zl, size_t zlbytes, unsign
 
 /* Create a new empty ziplist. */
 unsigned char *ziplistNew(void) {
-    unsigned int bytes = ZIPLIST_HEADER_SIZE+ZIPLIST_END_SIZE;
+    unsigned int bytes = ZIPLIST_HEADER_SIZE+ZIPLIST_END_SIZE;  // 分配头尾固定内存
     unsigned char *zl = zmalloc(bytes);
     ZIPLIST_BYTES(zl) = intrev32ifbe(bytes);
     ZIPLIST_TAIL_OFFSET(zl) = intrev32ifbe(ZIPLIST_HEADER_SIZE);
@@ -778,7 +781,7 @@ unsigned char *__ziplistCascadeUpdate(unsigned char *zl, unsigned char *p) {
 
         /* Update prev entry's info and advance the cursor. */
         rawlen = cur.headersize + cur.len;
-        prevlen = rawlen + delta; 
+        prevlen = rawlen + delta;
         prevlensize = zipStorePrevEntryLength(NULL, prevlen);
         prevoffset = p - zl;
         p += rawlen;
@@ -816,8 +819,8 @@ unsigned char *__ziplistCascadeUpdate(unsigned char *zl, unsigned char *p) {
         zipEntry(zl + prevoffset, &cur); /* no need for "safe" variant since we already iterated on all these entries above. */
         rawlen = cur.headersize + cur.len;
         /* Move entry to tail and reset prevlen. */
-        memmove(p - (rawlen - cur.prevrawlensize), 
-                zl + prevoffset + cur.prevrawlensize, 
+        memmove(p - (rawlen - cur.prevrawlensize),
+                zl + prevoffset + cur.prevrawlensize,
                 rawlen - cur.prevrawlensize);
         p -= (rawlen + delta);
         if (cur.prevrawlen == 0) {
@@ -2479,7 +2482,7 @@ int ziplistTest(int argc, char **argv, int accurate) {
 
     printf("Edge cases of __ziplistCascadeUpdate:\n");
     {
-        /* Inserting a entry with data length greater than ZIP_BIG_PREVLEN-4 
+        /* Inserting a entry with data length greater than ZIP_BIG_PREVLEN-4
          * will leads to cascade update. */
         size_t s1 = ZIP_BIG_PREVLEN-4, s2 = ZIP_BIG_PREVLEN-3;
         zl = ziplistNew();

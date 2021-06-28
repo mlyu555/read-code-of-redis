@@ -69,6 +69,16 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "src/ziplist.c",
+			"bookmarks": [
+				{
+					"line": 275,
+					"column": 24,
+					"label": ""
+				}
+			]
 		}
 	]
 }

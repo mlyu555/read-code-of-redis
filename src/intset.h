@@ -32,22 +32,31 @@
 #define __INTSET_H
 #include <stdint.h>
 
-// 整数集合 intset
+// 整数集合
 typedef struct intset {
     uint32_t encoding;          // 编码方式，值：16、32、64（int16、int32、int64）
     uint32_t length;            // 集合中元素个数
-    int8_t contents[];          // 元素数组
+    int8_t contents[];          // 元素数组: 从小到大、不重复
 } intset;
 
-// 整数集合API
+/****************************** API ******************************/
+// 创建intset
 intset *intsetNew(void);
+// 添加元素
 intset *intsetAdd(intset *is, int64_t value, uint8_t *success);
+// 删除元素
 intset *intsetRemove(intset *is, int64_t value, int *success);
+// 查找元素 二分查找(有序)
 uint8_t intsetFind(intset *is, int64_t value);
+// 返回随机元素
 int64_t intsetRandom(intset *is);
+// 索引查找
 uint8_t intsetGet(intset *is, uint32_t pos, int64_t *value);
+// 元素数量size
 uint32_t intsetLen(const intset *is);
+// 占用内存字节数 = size * encoding
 size_t intsetBlobLen(intset *is);
+// 验证完整性
 int intsetValidateIntegrity(const unsigned char *is, size_t size, int deep);
 
 #ifdef REDIS_TEST

@@ -38,9 +38,9 @@
 
 /* Note that these encodings are ordered, so:
  * INTSET_ENC_INT16 < INTSET_ENC_INT32 < INTSET_ENC_INT64. */
-#define INTSET_ENC_INT16 (sizeof(int16_t))
-#define INTSET_ENC_INT32 (sizeof(int32_t))
-#define INTSET_ENC_INT64 (sizeof(int64_t))
+#define INTSET_ENC_INT16 (sizeof(int16_t))          // 16
+#define INTSET_ENC_INT32 (sizeof(int32_t))          // 32
+#define INTSET_ENC_INT64 (sizeof(int64_t))          // 64
 
 /* Return the required encoding for the provided value. */
 // 根据值的大小来决定编码
@@ -96,7 +96,6 @@ static void _intsetSet(intset *is, int pos, int64_t value) {
 }
 
 /* Create an empty intset. */
-// 创建结构指针
 intset *intsetNew(void) {
     intset *is = zmalloc(sizeof(intset));
     is->encoding = intrev32ifbe(INTSET_ENC_INT16);

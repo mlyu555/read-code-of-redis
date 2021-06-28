@@ -45,12 +45,13 @@ uint64_t intrev64(uint64_t v);
 
 /* variants of the function doing the actual conversion only if the target
  * host is big endian */
+// 字节序: 小端
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 #define memrev16ifbe(p) ((void)(0))
 #define memrev32ifbe(p) ((void)(0))
 #define memrev64ifbe(p) ((void)(0))
 #define intrev16ifbe(v) (v)
-#define intrev32ifbe(v) (v)
+#define intrev32ifbe(v) (v)             // 宏嵌套
 #define intrev64ifbe(v) (v)
 #else
 #define memrev16ifbe(p) memrev16(p)

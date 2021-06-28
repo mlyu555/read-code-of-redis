@@ -47,7 +47,8 @@
 /* Unused arguments generate annoying warnings... */
 #define DICT_NOTUSED(V) ((void) V)
 
-typedef struct dictEntry {              // 哈希数据块
+// hash节点: 保存key-value
+typedef struct dictEntry {
     void *key;                          // key
     union {                             // value 联合体
         void *val;
@@ -55,11 +56,12 @@ typedef struct dictEntry {              // 哈希数据块
         int64_t s64;
         double d;
     } v;
-    struct dictEntry *next;             // 下一数据块
+    struct dictEntry *next;             // 形成链表
 } dictEntry;
 
-typedef struct dictType {                                                   // 哈希系统中可操作函数
-    uint64_t (*hashFunction)(const void *key);                              // callback hash函数
+// 类型特定函数 命名*Type callback 多态
+typedef struct dictType {
+    uint64_t (*hashFunction)(const void *key);                              // callback hash函数: 计算哈希值
     void *(*keyDup)(void *privdata, const void *key);                       // callback 键拷贝
     void *(*valDup)(void *privdata, const void *obj);                       // callback 值拷贝
     int (*keyCompare)(void *privdata, const void *key1, const void *key2);  // callback 键比较
@@ -70,18 +72,20 @@ typedef struct dictType {                                                   // �
 
 /* This is our hash table structure. Every dictionary has two of this as we
  * implement incremental rehashing, for the old to the new table. */
-typedef struct dictht {         // 哈希表/字典
-    dictEntry **table;          // 记录，二维数组（数组+开链）保存
-    unsigned long size;         // 大小 2^n
-    unsigned long sizemask;     // size-1 对size取模
-    unsigned long used;         // 记录数量
+// 哈希表
+typedef struct dictht {
+    dictEntry **table;          // 记录数组, 元素为指向dictEntry的指针
+    unsigned long size;         // 大小, 即table的大小 2^n
+    unsigned long sizemask;     // size-1 对size取模, 计算索引值
+    unsigned long used;         // 记录(dictEntry节点)数量   used = load_factor * size
 } dictht;
 
-typedef struct dict {       // 整个Hash系统
-    dictType *type;         // 一系列哈希函数
+// 字典
+typedef struct dict {
+    dictType *type;         // 类型特定函数
     void *privdata;         // 私有数据
-    dictht ht[2];           // 两个哈希实例: old\new
-    long rehashidx; /* rehashing not in progress if rehashidx == -1 */  // 需扩容的哈希实例编号，非-1——rehash
+    dictht ht[2];           // 两个哈希实例: h[0](old) --rehashing--> h[1](new)
+    long rehashidx; /* rehashing not in progress if rehashidx == -1 */  // 需扩容的哈希实例编号，-1: no-rehash
     int16_t pauserehash; /* If >0 rehashing is paused (<0 indicates coding error) */
 } dict;
 
@@ -198,7 +202,7 @@ int dictRehashMilliseconds(dict *d, int ms);
 void dictSetHashFunctionSeed(uint8_t *seed);
 uint8_t *dictGetHashFunctionSeed(void);
 unsigned long dictScan(dict *d, unsigned long v, dictScanFunction *fn, dictScanBucketFunction *bucketfn, void *privdata);
-uint64_t dictGetHash(dict *d, const void *key);
+uint64_t dictGetHash(dict *d, const void *key);             // 计算哈希值
 dictEntry **dictFindEntryRefByPtrAndHash(dict *d, const void *oldptr, uint64_t hash);
 
 /* Hash table types */

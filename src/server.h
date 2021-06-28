@@ -168,7 +168,7 @@ extern int configOOMScoreAdjValuesDefaults[CONFIG_OOM_COUNT];
 
 /* Hash table parameters */
 #define HASHTABLE_MIN_FILL        10      /* Minimal hash table fill 10% */
-#define HASHTABLE_MAX_LOAD_FACTOR 1.618   /* Maximum hash table load factor. */
+#define HASHTABLE_MAX_LOAD_FACTOR 1.618   /* Maximum hash table load factor. */     // 负载因子
 
 /* Command flags. Please check the command table defined in the server.c file
  * for more information about the meaning of every flag. */

@@ -9,7 +9,12 @@
 					"label": "redisObject"
 				},
 				{
-					"line": 1018,
+					"line": 716,
+					"column": 24,
+					"label": ""
+				},
+				{
+					"line": 1019,
 					"column": 26,
 					"label": "跳表"
 				}

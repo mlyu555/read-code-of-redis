@@ -713,8 +713,9 @@ typedef struct clientReplyBlock {
 /* Redis database representation. There are multiple databases identified
  * by integers from 0 (the default database) up to the max configured
  * database. The database number is the 'id' field in the structure. */
+// 数据库对象: 每个对象表示一个数据库
 typedef struct redisDb {
-    dict *dict;                 /* The keyspace for this DB */
+    dict *dict;                 /* The keyspace for this DB */      // 保存key-value
     dict *expires;              /* Timeout of keys with a timeout set */
     dict *blocking_keys;        /* Keys with clients waiting for data (BLPOP)*/
     dict *ready_keys;           /* Blocked keys that received a PUSH */
@@ -866,7 +867,7 @@ typedef struct client {
     uint64_t id;            /* Client incremental unique ID. */
     connection *conn;
     int resp;               /* RESP protocol version. Can be 2 or 3. */
-    redisDb *db;            /* Pointer to currently SELECTed DB. */                 // 当前使用数据库
+    redisDb *db;            /* Pointer to currently SELECTed DB. */                 // 指向当前使用数据库的指针
     robj *name;             /* As set by CLIENT SETNAME. */                         // 客户端名字, 默认NULL
     sds querybuf;           /* Buffer we use to accumulate client queries. */       // 输入缓冲区 <=1GB
     size_t qb_pos;          /* The position we have read in querybuf. */
@@ -988,9 +989,9 @@ struct sharedObjectsStruct {
     *busykeyerr, *oomerr, *plus, *messagebulk, *pmessagebulk, *subscribebulk,
     *unsubscribebulk, *psubscribebulk, *punsubscribebulk, *del, *unlink,
     *rpop, *lpop, *lpush, *rpoplpush, *lmove, *blmove, *zpopmin, *zpopmax,
-    *emptyscan, *multi, *exec, *left, *right, *hset, *srem, *xgroup, *xclaim,  
-    *script, *replconf, *eval, *persist, *set, *pexpireat, *pexpire, 
-    *time, *pxat, *px, *retrycount, *force, *justid, 
+    *emptyscan, *multi, *exec, *left, *right, *hset, *srem, *xgroup, *xclaim,
+    *script, *replconf, *eval, *persist, *set, *pexpireat, *pexpire,
+    *time, *pxat, *px, *retrycount, *force, *justid,
     *lastid, *ping, *setid, *keepttl, *load, *createconsumer,
     *getack, *special_asterick, *special_equals, *default_username, *redacted,
     *select[PROTO_SHARED_SELECT_CMDS],
@@ -1010,7 +1011,7 @@ typedef struct zskiplistNode {
     struct zskiplistLevel {
         struct zskiplistNode *forward;  // 前向指针（后继节点）或者说将next移至到level中
         unsigned long span;             // 跨度, 即节点距离 ≥1
-    } level[];                          // 层数组: 数量越多访问越快                      // tips 柔性数组 
+    } level[];                          // 层数组: 数量越多访问越快                      // tips 柔性数组
 } zskiplistNode;
 
 // 跳表 zskiplist
@@ -1191,7 +1192,7 @@ struct redisServer {
     mode_t umask;               /* The umask value of the process on startup */
     int hz;                     /* serverCron() calls frequency in hertz */
     int in_fork_child;          /* indication that this is a fork child */
-    redisDb *db;
+    redisDb *db;                // 数据库数组: 保存服务器中所有数据库
     dict *commands;             /* Command table */
     dict *orig_commands;        /* Command table before command renaming. */
     aeEventLoop *el;
@@ -1343,7 +1344,7 @@ struct redisServer {
     int active_defrag_cycle_max;       /* maximal effort for defrag in CPU percentage */
     unsigned long active_defrag_max_scan_fields; /* maximum number of fields of set/hash/zset/list to process from within the main dict scan */
     size_t client_max_querybuf_len; /* Limit for client query buffer length */
-    int dbnum;                      /* Total number of configured DBs */
+    int dbnum;                      /* Total number of configured DBs */    // 数据库数量即db[dbnum] 配置项database决定, 默认16
     int supervised;                 /* 1 if supervised, 0 otherwise. */
     int supervised_mode;            /* See SUPERVISED_* */
     int daemonize;                  /* True if running as a daemon */

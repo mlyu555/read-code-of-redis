@@ -42,9 +42,20 @@ extern const char *SDS_NOINIT;
 
 typedef char *sds;
 
+// sdshdr字符串头定义 sdshdr8\sdshdr16\sdshdr32\sdshdr64
+// struct sdshdr{
+//     len;             // 已使用字符串长度
+//     alloc;           // 分配总内存大小 buf的长度-1
+//     flags;           //
+//     buf;             // 实际字符串 + '\0'————兼容C字符串
+// };
+// 内存分配策略
+// 1. len < 1MB, 则alloc=2*len+1
+// 2. len >=1MB, 则alloc=len+1MB+1
+
 /* Note: sdshdr5 is never used, we just access the flags byte directly.
  * However is here to document the layout of type 5 SDS strings. */
-struct __attribute__ ((__packed__)) sdshdr5 {
+struct __attribute__ ((__packed__)) sdshdr5 {               // unuse
     unsigned char flags; /* 3 lsb of type, and 5 msb of string length */
     char buf[];
 };

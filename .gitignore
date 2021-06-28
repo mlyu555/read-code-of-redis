@@ -40,3 +40,5 @@ compile_commands.json
 redis.code-workspace
 # debug
 tests/tmp/*
+# macOS
+.DS_Store

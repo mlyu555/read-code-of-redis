@@ -33,7 +33,7 @@
 #ifndef __SDS_H
 #define __SDS_H
 
-#define SDS_MAX_PREALLOC (1024*1024)
+#define SDS_MAX_PREALLOC (1024*1024)            // 1MB
 extern const char *SDS_NOINIT;
 
 #include <sys/types.h>
@@ -55,6 +55,7 @@ typedef char *sds;
 
 /* Note: sdshdr5 is never used, we just access the flags byte directly.
  * However is here to document the layout of type 5 SDS strings. */
+// __attribute__ ((__packed__)) 取消结构体字节对齐
 struct __attribute__ ((__packed__)) sdshdr5 {               // unuse
     unsigned char flags; /* 3 lsb of type, and 5 msb of string length */
     char buf[];
@@ -62,7 +63,7 @@ struct __attribute__ ((__packed__)) sdshdr5 {               // unuse
 struct __attribute__ ((__packed__)) sdshdr8 {
     uint8_t len; /* used */
     uint8_t alloc; /* excluding the header and null terminator */
-    unsigned char flags; /* 3 lsb of type, 5 unused bits */
+    unsigned char flags; /* 3 lsb of type, 5 unused bits */         // 最低有效位 小端字节序
     char buf[];
 };
 struct __attribute__ ((__packed__)) sdshdr16 {
@@ -84,13 +85,15 @@ struct __attribute__ ((__packed__)) sdshdr64 {
     char buf[];
 };
 
+// SDSType 5种
+// tips type&掩码=type 和掩码进行与运算等于本身  用位运算来替换=——速度更快
 #define SDS_TYPE_5  0
 #define SDS_TYPE_8  1
 #define SDS_TYPE_16 2
 #define SDS_TYPE_32 3
 #define SDS_TYPE_64 4
-#define SDS_TYPE_MASK 7
-#define SDS_TYPE_BITS 3
+#define SDS_TYPE_MASK 7     // 掩码 3bits全1
+#define SDS_TYPE_BITS 3     // 表示5种类型需要3bits
 #define SDS_HDR_VAR(T,s) struct sdshdr##T *sh = (void*)((s)-(sizeof(struct sdshdr##T)));
 #define SDS_HDR(T,s) ((struct sdshdr##T *)((s)-(sizeof(struct sdshdr##T))))
 #define SDS_TYPE_5_LEN(f) ((f)>>SDS_TYPE_BITS)
@@ -226,9 +229,12 @@ static inline void sdssetalloc(sds s, size_t newlen) {
     }
 }
 
+// 创建sds（指针+长度）
 sds sdsnewlen(const void *init, size_t initlen);
 sds sdstrynewlen(const void *init, size_t initlen);
+// 创建sds（C-string）
 sds sdsnew(const char *init);
+// 清空
 sds sdsempty(void);
 sds sdsdup(const sds s);
 void sdsfree(sds s);

@@ -48,9 +48,10 @@ void zlibc_free(void *ptr) {
 #include "zmalloc.h"
 #include "atomicvar.h"
 
+// todo ?
 #ifdef HAVE_MALLOC_SIZE
 #define PREFIX_SIZE (0)
-#define ASSERT_NO_SIZE_OVERFLOW(sz)
+#define ASSERT_NO_SIZE_OVERFLOW(sz)                 // think 如何去判断内存溢出
 #else
 #if defined(__sun) || defined(__sparc) || defined(__sparc__)
 #define PREFIX_SIZE (sizeof(long long))
@@ -63,7 +64,7 @@ void zlibc_free(void *ptr) {
 /* When using the libc allocator, use a minimum allocation size to match the
  * jemalloc behavior that doesn't return NULL in this case.
  */
-#define MALLOC_MIN_SIZE(x) ((x) > 0 ? (x) : sizeof(long))
+#define MALLOC_MIN_SIZE(x) ((x) > 0 ? (x) : sizeof(long))           // todo
 
 /* Explicitly override malloc/free etc when using tcmalloc. */
 #if defined(USE_TCMALLOC)
@@ -497,7 +498,7 @@ int zmalloc_get_allocator_info(size_t *allocated,
 }
 
 void set_jemalloc_bg_thread(int enable) {
-    /* let jemalloc do purging asynchronously, required when there's no traffic 
+    /* let jemalloc do purging asynchronously, required when there's no traffic
      * after flushdb */
     char val = !!enable;
     je_mallctl("background_thread", NULL, 0, &val, 1);

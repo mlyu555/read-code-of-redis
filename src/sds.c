@@ -41,6 +41,8 @@
 
 const char *SDS_NOINIT = "SDS_NOINIT";
 
+// tips 位运算
+// tips 掩码
 static inline int sdsHdrSize(char type) {
     switch(type&SDS_TYPE_MASK) {
         case SDS_TYPE_5:
@@ -57,22 +59,24 @@ static inline int sdsHdrSize(char type) {
     return 0;
 }
 
+// 根据长度获取sdsType
 static inline char sdsReqType(size_t string_size) {
-    if (string_size < 1<<5)
+    if (string_size < 1<<5)             // < 32B
         return SDS_TYPE_5;
-    if (string_size < 1<<8)
+    if (string_size < 1<<8)             // [32B, 256B)
         return SDS_TYPE_8;
-    if (string_size < 1<<16)
+    if (string_size < 1<<16)            // [256B, 64KB)
         return SDS_TYPE_16;
 #if (LONG_MAX == LLONG_MAX)
-    if (string_size < 1ll<<32)
+    if (string_size < 1ll<<32)          // [64KB, 4MB)
         return SDS_TYPE_32;
-    return SDS_TYPE_64;
+    return SDS_TYPE_64;                 // >= 4MB
 #else
     return SDS_TYPE_32;
 #endif
 }
 
+// 获取不同sdsType的最大长度
 static inline size_t sdsTypeMaxSize(char type) {
     if (type == SDS_TYPE_5)
         return (1<<5) - 1;
@@ -101,29 +105,29 @@ static inline size_t sdsTypeMaxSize(char type) {
  * end of the string. However the string is binary safe and can contain
  * \0 characters in the middle, as the length is stored in the sds header. */
 sds _sdsnewlen(const void *init, size_t initlen, int trymalloc) {
-    void *sh;
-    sds s;
-    char type = sdsReqType(initlen);
-    /* Empty strings are usually created in order to append. Use type 8
+    void *sh;                       // sdshdr头指针
+    sds s;                          // sdshdr.buf   头部和buf连续
+    char type = sdsReqType(initlen);            // 0\1\2\3\4
+    /* Empty strings are usually created in order to append. Use type 8     // 原因: 方便添加
      * since type 5 is not good at this. */
-    if (type == SDS_TYPE_5 && initlen == 0) type = SDS_TYPE_8;
+    if (type == SDS_TYPE_5 && initlen == 0) type = SDS_TYPE_8;      // 空字符串一般初始化uint8_t
     int hdrlen = sdsHdrSize(type);
     unsigned char *fp; /* flags pointer. */
     size_t usable;
 
-    assert(initlen + hdrlen + 1 > initlen); /* Catch size_t overflow */
-    sh = trymalloc?
+    assert(initlen + hdrlen + 1 > initlen); /* Catch size_t overflow */ // todo 为什么这个表达式能表示内存溢出
+    sh = trymalloc?                                                     // 1 扩容
         s_trymalloc_usable(hdrlen+initlen+1, &usable) :
-        s_malloc_usable(hdrlen+initlen+1, &usable);
+        s_malloc_usable(hdrlen+initlen+1, &usable);                     // 头长度+实际长度+可用长度
     if (sh == NULL) return NULL;
-    if (init==SDS_NOINIT)
+    if (init==SDS_NOINIT)                                               // todo ?
         init = NULL;
     else if (!init)
         memset(sh, 0, hdrlen+initlen+1);
-    s = (char*)sh+hdrlen;
-    fp = ((unsigned char*)s)-1;
+    s = (char*)sh+hdrlen;                                               // 指针移动获取
+    fp = ((unsigned char*)s)-1;                                         // buf前一个字节
     usable = usable-hdrlen-1;
-    if (usable > sdsTypeMaxSize(type))
+    if (usable > sdsTypeMaxSize(type))                                  // todo ?
         usable = sdsTypeMaxSize(type);
     switch(type) {
         case SDS_TYPE_5: {
@@ -131,7 +135,7 @@ sds _sdsnewlen(const void *init, size_t initlen, int trymalloc) {
             break;
         }
         case SDS_TYPE_8: {
-            SDS_HDR_VAR(8,s);
+            SDS_HDR_VAR(8,s);                                           // todo ?
             sh->len = initlen;
             sh->alloc = usable;
             *fp = type;

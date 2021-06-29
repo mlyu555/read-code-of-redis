@@ -103,9 +103,9 @@ struct commandHelp {
     "Asynchronously rewrite the append-only file",
     9,
     "1.0.0" },
-    { "BGSAVE",
+    { "BGSAVE",                                 // RDB
     "[SCHEDULE]",
-    "Asynchronously save the dataset to disk",
+    "Asynchronously save the dataset to disk",  // 异步
     9,
     "1.0.0" },
     { "BITCOUNT",
@@ -983,7 +983,7 @@ struct commandHelp {
     "Add one or more members to a set",
     3,
     "1.0.0" },
-    { "SAVE",
+    { "SAVE",                                     // RDB 同步
     "-",
     "Synchronously save the dataset to disk",
     9,

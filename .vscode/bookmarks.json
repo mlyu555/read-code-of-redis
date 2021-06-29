@@ -14,7 +14,7 @@
 					"label": ""
 				},
 				{
-					"line": 1019,
+					"line": 1020,
 					"column": 26,
 					"label": "跳表"
 				}
@@ -44,12 +44,12 @@
 			"path": "src/server.c",
 			"bookmarks": [
 				{
-					"line": 3142,
+					"line": 3145,
 					"column": 23,
 					"label": "initServer"
 				},
 				{
-					"line": 6153,
+					"line": 6157,
 					"column": 33,
 					"label": "main-server"
 				}
@@ -81,6 +81,16 @@
 				{
 					"line": 275,
 					"column": 24,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "src/rdb.c",
+			"bookmarks": [
+				{
+					"line": 1351,
+					"column": 47,
 					"label": ""
 				}
 			]

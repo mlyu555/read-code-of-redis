@@ -956,6 +956,7 @@ typedef struct client {
     char buf[PROTO_REPLY_CHUNK_BYTES];  // 固定输出缓冲区 16kb
 } client;
 
+// 保存配置项save值
 struct saveparam {
     time_t seconds;
     int changes;
@@ -1392,17 +1393,18 @@ struct redisServer {
     int aof_stop_sending_diff;     /* If true stop sending accumulated diffs
                                       to child process. */
     sds aof_child_diff;             /* AOF diff accumulator child side. */
-    /* RDB persistence */
+    /* RDB persistence */           // RDB 状态
+    // rdb 上次保存后的修改次数，注意不是只有1个命令仅算1次修改，如SADD key v1 v2 v3算3次
     long long dirty;                /* Changes to DB from the last save */
     long long dirty_before_bgsave;  /* Used to restore dirty on failed BGSAVE */
-    struct saveparam *saveparams;   /* Save points array for RDB */
+    struct saveparam *saveparams;   /* Save points array for RDB */                 // conf "save 秒数 修改次数"
     int saveparamslen;              /* Number of saving points */
     char *rdb_filename;             /* Name of RDB file */
     int rdb_compression;            /* Use compression in RDB? */
     int rdb_checksum;               /* Use RDB checksum? */
     int rdb_del_sync_files;         /* Remove RDB files used only for SYNC if
                                        the instance does not use persistence. */
-    time_t lastsave;                /* Unix time of last successful save */
+    time_t lastsave;                /* Unix time of last successful save */        // 上次成功SAVE/BGSAVE的时间
     time_t lastbgsave_try;          /* Unix time of last attempted bgsave */
     time_t rdb_save_time_last;      /* Time used by last RDB save run. */
     time_t rdb_save_time_start;     /* Current RDB save start time. */

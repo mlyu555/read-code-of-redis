@@ -41,10 +41,9 @@
 
 const char *SDS_NOINIT = "SDS_NOINIT";
 
-// tips 位运算
-// tips 掩码
+// 获取sds头长度即sdshdr长度
 static inline int sdsHdrSize(char type) {
-    switch(type&SDS_TYPE_MASK) {
+    switch(type&SDS_TYPE_MASK) {            // tips 位运算 掩码
         case SDS_TYPE_5:
             return sizeof(struct sdshdr5);
         case SDS_TYPE_8:

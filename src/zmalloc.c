@@ -38,6 +38,7 @@
  * for instance to free results obtained by backtrace_symbols(). We need
  * to define this function before including zmalloc.h that may shadow the
  * free implementation if we use jemalloc or another non standard allocator. */
+// note 在引用“zmalloc.h”前定义是为了调用C函数库libc的free()
 void zlibc_free(void *ptr) {
     free(ptr);
 }
@@ -50,13 +51,13 @@ void zlibc_free(void *ptr) {
 
 // todo ?
 #ifdef HAVE_MALLOC_SIZE
-#define PREFIX_SIZE (0)
+#define PREFIX_SIZE (0)                             // PREFIX_SIZE记录malloc已分配到的内存大小
 #define ASSERT_NO_SIZE_OVERFLOW(sz)                 // think 如何去判断内存溢出
 #else
 #if defined(__sun) || defined(__sparc) || defined(__sparc__)
-#define PREFIX_SIZE (sizeof(long long))
+#define PREFIX_SIZE (sizeof(long long))         // sun平台使用sizeof(long long)来记录内存分配大小
 #else
-#define PREFIX_SIZE (sizeof(size_t))
+#define PREFIX_SIZE (sizeof(size_t))            // 其他平台使用sizeof(size_t)8bytes来记录内存分配大小
 #endif
 #define ASSERT_NO_SIZE_OVERFLOW(sz) assert((sz) + PREFIX_SIZE > (sz))
 #endif

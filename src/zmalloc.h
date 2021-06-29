@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+// Redis内存分配策略
 #ifndef __ZMALLOC_H
 #define __ZMALLOC_H
 
@@ -40,6 +41,9 @@
 #define __xstr(s) __str(s)
 #define __str(s) #s
 
+// tips 对不同平台的malloc进行统一封装，类似posix
+
+// 使用tcmalloc库
 #if defined(USE_TCMALLOC)
 #define ZMALLOC_LIB ("tcmalloc-" __xstr(TC_VERSION_MAJOR) "." __xstr(TC_VERSION_MINOR))
 #include <google/tcmalloc.h>
@@ -50,16 +54,18 @@
 #error "Newer version of tcmalloc required"
 #endif
 
+// 使用jemalloc库
 #elif defined(USE_JEMALLOC)
 #define ZMALLOC_LIB ("jemalloc-" __xstr(JEMALLOC_VERSION_MAJOR) "." __xstr(JEMALLOC_VERSION_MINOR) "." __xstr(JEMALLOC_VERSION_BUGFIX))
 #include <jemalloc/jemalloc.h>
 #if (JEMALLOC_VERSION_MAJOR == 2 && JEMALLOC_VERSION_MINOR >= 1) || (JEMALLOC_VERSION_MAJOR > 2)
-#define HAVE_MALLOC_SIZE 1
+#define HAVE_MALLOC_SIZE 1          // 统计内存占有量
 #define zmalloc_size(p) je_malloc_usable_size(p)
 #else
 #error "Newer version of jemalloc required"
 #endif
 
+// 使用Apple某个库
 #elif defined(__APPLE__)
 #include <malloc/malloc.h>
 #define HAVE_MALLOC_SIZE 1
@@ -74,6 +80,7 @@
  * USE_MALLOC_USABLE_SIZE forces use of malloc_usable_size() regardless
  *      of platform.
  */
+// 上述均未使用，则使用原生库
 #ifndef ZMALLOC_LIB
 #define ZMALLOC_LIB "libc"
 

@@ -1,5 +1,6 @@
 # Redis dependency Makefile
 
+# 查看平台 Linux(centos)、Darwin(mac)
 uname_S:= $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
 CCCOLOR="\033[34m"
@@ -83,6 +84,7 @@ lua: .make-prerequisites
 
 .PHONY: lua
 
+# todo ？
 JEMALLOC_CFLAGS= -std=gnu99 -Wall -pipe -g3 -O3 -funroll-loops $(CFLAGS)
 JEMALLOC_LDFLAGS= $(LDFLAGS)
 
